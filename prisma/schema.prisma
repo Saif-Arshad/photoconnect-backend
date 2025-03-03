@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  DESIGNER
+  USER
+}
+
+enum ContractStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String   @unique
+  follower       String[]
+  followerCount  Int
+  followingCount Int
+  following      String[]
+  password       String
+  userType       UserType @default(USER)
+  createdAt      DateTime @default(now())
+  profileImage String? 
+  bannerImage String? 
+  clientContracts     Contract[] @relation("ClientContracts")
+  freelancerContracts Contract[] @relation("FreelancerContracts")
+}
+
+model Post {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  likes       String[]
+}
+
+model Contract {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  clientId     String
+  client       User    @relation("ClientContracts", fields: [clientId], references: [id])
+  freelancerId String
+  freelancer   User    @relation("FreelancerContracts", fields: [freelancerId], references: [id])
+  dueDate      DateTime
+  designLink   String?
+  status       ContractStatus
+}
