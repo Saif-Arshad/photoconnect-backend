@@ -20,35 +20,39 @@ enum ContractStatus {
 }
 
 model User {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  email          String   @unique
-  follower       String[]
-  followerCount  Int
-  followingCount Int
-  following      String[]
-  password       String
-  userType       UserType @default(USER)
-  createdAt      DateTime @default(now())
-  profileImage String? 
-  bannerImage String? 
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  email               String     @unique
+  follower            String[]
+  followerCount       Int
+  followingCount      Int
+  following           String[]
+  password            String
+  userType            UserType   @default(USER)
+  createdAt           DateTime   @default(now())
+  profileImage        String?
+  bannerImage         String?
   clientContracts     Contract[] @relation("ClientContracts")
   freelancerContracts Contract[] @relation("FreelancerContracts")
+  Post                Post[]
 }
 
 model Post {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String?
+  userId      String?  @db.ObjectId
+  image       String?
   likes       String[]
+  User        User?    @relation(fields: [userId], references: [id])
 }
 
 model Contract {
-  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
   clientId     String
-  client       User    @relation("ClientContracts", fields: [clientId], references: [id])
+  client       User           @relation("ClientContracts", fields: [clientId], references: [id])
   freelancerId String
-  freelancer   User    @relation("FreelancerContracts", fields: [freelancerId], references: [id])
+  freelancer   User           @relation("FreelancerContracts", fields: [freelancerId], references: [id])
   dueDate      DateTime
   designLink   String?
   status       ContractStatus
