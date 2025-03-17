@@ -175,3 +175,86 @@ exports.getDesignerById = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 }
+
+exports.followUser = async (req, res) => {
+    const { userId, clientId } = req.body;
+
+    if (!userId || !clientId) {
+        return res.status(400).json({
+            success: false,
+            message: "Both userId and clientId are required",
+        });
+    }
+
+    try {
+        const userToFollow = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!userToFollow) {
+            return res
+                .status(404)
+                .json({ success: false, message: "No user found with this ID" });
+        }
+
+        if (userToFollow.follower.includes(clientId)) {
+            const updatedUser = await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    follower: userToFollow.follower.filter((id) => id !== clientId),
+                    followerCount: { decrement: 1 },
+                },
+            });
+
+            const clientUser = await prisma.user.findUnique({
+                where: { id: clientId },
+            });
+            const updatedClient = await prisma.user.update({
+                where: { id: clientId },
+                data: {
+                    following: clientUser.following.filter((id) => id !== userId),
+                    followingCount: { decrement: 1 },
+                },
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: "Unfollow successful",
+                data: {
+                    unfollowedUser: updatedUser,
+                    clientUser: updatedClient,
+                },
+            });
+        } else {
+            const updatedUser = await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    follower: { push: clientId },
+                    followerCount: { increment: 1 },
+                },
+            });
+
+            const updatedClient = await prisma.user.update({
+                where: { id: clientId },
+                data: {
+                    following: { push: userId },
+                    followingCount: { increment: 1 },
+                },
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: "Follow successful",
+                data: {
+                    followedUser: updatedUser,
+                    clientUser: updatedClient,
+                },
+            });
+        }
+    } catch (error) {
+        console.error("Error in followUser:", error);
+        return res
+            .status(500)
+            .json({ success: false, message: error.message });
+    }
+};

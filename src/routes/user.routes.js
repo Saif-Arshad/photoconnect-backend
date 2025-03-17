@@ -6,5 +6,6 @@ router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.get('/', userController.getAllDesigners);
 router.get('/:id', userController.getDesignerById);
+router.post('/follow', userController.followUser);
 
 module.exports = router;
