@@ -31,6 +31,11 @@ model User {
   userType            UserType   @default(USER)
   createdAt           DateTime   @default(now())
   profileImage        String?
+  designerType        String?
+  Location            String?
+  about               String?
+  phoneNumber         String?
+  website             String?
   bannerImage         String?
   clientContracts     Contract[] @relation("ClientContracts")
   freelancerContracts Contract[] @relation("FreelancerContracts")
