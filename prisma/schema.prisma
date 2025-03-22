@@ -55,10 +55,15 @@ model Post {
 model Contract {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
   clientId     String
+  budget       String
+  phone        String
+  discription  String
+  startDate    String
   client       User           @relation("ClientContracts", fields: [clientId], references: [id])
   freelancerId String
   freelancer   User           @relation("FreelancerContracts", fields: [freelancerId], references: [id])
   dueDate      DateTime
   designLink   String?
+  createdAt   DateTime       @default(now())
   status       ContractStatus
 }
