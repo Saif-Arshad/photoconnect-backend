@@ -64,6 +64,6 @@ model Contract {
   freelancer   User           @relation("FreelancerContracts", fields: [freelancerId], references: [id])
   dueDate      DateTime
   designLink   String?
-  createdAt   DateTime       @default(now())
+  createdAt    DateTime?      @default(now())
   status       ContractStatus
 }
