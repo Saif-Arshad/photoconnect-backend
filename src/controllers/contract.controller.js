@@ -79,16 +79,16 @@ exports.updateContract = async (req, res) => {
 exports.updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const {  status } = req.body;
+        const { status } = req.body;
 
         const updatedContract = await prisma.contract.update({
             where: { id: id },
             data: {
                 status,
             },
-            include:{
-                client:true,
-                freelancer:true
+            include: {
+                client: true,
+                freelancer: true
             }
         });
 
@@ -120,7 +120,8 @@ exports.getAllContracts = async (req, res) => {
         const contracts = await prisma.contract.findMany({
             include: {
                 client: true,
-                freelancer: true
+                freelancer: true,
+                review: true
             }
         });
         return res.status(200).json({ success: true, data: contracts });
@@ -129,3 +130,34 @@ exports.getAllContracts = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+
+exports.createReview = async (req, res) => {
+    const { rating, comment, contractId } = req.body
+
+    try {
+        const contract = await prisma.contract.findUnique({
+            where: { id: contractId },
+        })
+        if (!contract) {
+            return res.status(404).json({ error: 'Contract not found' })
+        }
+
+        const review = await prisma.review.create({
+            data: {
+                rating,
+                comment,
+                contractId,
+                userId: contract.clientId
+            },
+        })
+
+        res.status(201).json({ review })
+    } catch (error) {
+        console.error('Error creating review:', error)
+        res.status(500).json({ error: error.message })
+    }
+}
+
+
+

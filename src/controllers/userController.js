@@ -190,16 +190,37 @@ exports.getDesignerById = async (req, res) => {
                 id
             },
             include: {
-                Post: true
+                Post: true,
             }
         })
         if (!designer) {
             return res.status(500).json({ success: false, message: "No Designer Found with this ID" });
 
         }
+        const allReviews = await prisma.contract.findMany({
+            where: {
+                freelancerId: designer.id,
+            },
+            select: {
+                review: {
+                    include: {
+                        User: true,
+                    },
+                },
+            },
+        });
+        console.log("🚀 ~ exports.getDesignerById= ~ allReviews:", allReviews)
+        const nonEmptyReviews = allReviews.filter(contract => contract.review && contract.review.length > 0);
+        const mergeReviews = nonEmptyReviews.map((item) => item.review[0])
+        const totalRating = mergeReviews.reduce((acc, review) => acc + Number(review.rating), 0);
+        const averageRating = mergeReviews.length > 0 ? totalRating / mergeReviews.length : 0;
         return res.status(200).json({
             success: true,
-            data: designer
+            data: designer,
+            review: {
+                data: mergeReviews,
+                ratting: averageRating
+            }
         });
     } catch (error) {
         console.log("🚀 ~ exports.loginUser= ~ error:", error)
