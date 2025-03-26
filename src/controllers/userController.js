@@ -131,6 +131,37 @@ exports.loginUser = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+exports.updateUser = async (req, res) => {
+    try {
+        const { profile, banner, userId, name } = req.body;
+
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                bannerImage: banner,
+                profileImage: profile,
+                name: name
+            }
+
+        });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            data: {
+                user,
+
+            },
+        });
+    } catch (error) {
+        console.log("🚀 ~ exports.loginUser= ~ error:", error)
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 exports.getAllDesigners = async (req, res) => {
     try {

@@ -5,6 +5,7 @@ const userController = require('../controllers/userController');
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.get('/', userController.getAllDesigners);
+router.post('/update', userController.updateUser);
 router.get('/:id', userController.getDesignerById);
 router.post('/follow', userController.followUser);
 
